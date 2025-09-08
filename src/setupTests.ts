@@ -27,12 +27,22 @@ Object.defineProperty(window, "matchMedia", {
 });
 
 Object.defineProperty(window, "localStorage", {
-  value: {
-    getItem: jest.fn(() => null),
-    setItem: jest.fn(),
-    clear: jest.fn(),
-    removeItem: jest.fn(),
-  },
+  value: (() => {
+    // simple in-memory storage so tests can set/get values
+    let store: Record<string, string> = {};
+    return {
+      getItem: jest.fn((key: string) => (key in store ? store[key] : null)),
+      setItem: jest.fn((key: string, value: string) => {
+        store[String(key)] = String(value);
+      }),
+      clear: jest.fn(() => {
+        store = {};
+      }),
+      removeItem: jest.fn((key: string) => {
+        delete store[String(key)];
+      }),
+    };
+  })(),
   writable: true,
 });
 

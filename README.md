@@ -174,6 +174,34 @@ Para cada test describo qué comprueba (objetivo), y explico las líneas clave d
     - `fireEvent.change(screen.getByTestId("input-task"), { target: { value: "Estudiar" } })` y `fireEvent.click(screen.getByTestId("add-btn"))` crea la tarea.
     - `screen.queryByText("Tarea 1")` se utiliza para verificar que la tarea fue eliminada (`not.toBeInTheDocument`).
 
+  - Desglose línea a línea (test):
+   1. `import { fireEvent, render, screen } from "@testing-library/react";` — importa utilidades para montar el componente y simular eventos.
+   2. `import TodoList from "./components/TodoList";` — importa el componente que vamos a probar.
+   3. `describe("TodoList", () => { ... });` — agrupa las pruebas relacionadas con `TodoList`.
+   4. `test("renderiza input y botón para agregar tareas", () => { render(<TodoList />); ... });` — caso de prueba que monta el componente y verifica elementos básicos:
+     - `render(<TodoList />);` monta en jsdom.
+     - `expect(screen.getByText(/Lista de Tareas/i)).toBeInTheDocument();` — comprueba que el título está presente.
+     - `expect(screen.getByTestId("input-task")).toBeInTheDocument();` — localiza el input por `data-testid`.
+     - `expect(screen.getByTestId("add-btn")).toBeInTheDocument();` — localiza el botón de agregar.
+   5. `test("agrega una nueva tarea a la lista", () => { ... });` — caso que valida la adición de tareas:
+     - `fireEvent.change(screen.getByTestId("input-task"), { target: { value: "Estudiar" } });` — simula escribir "Estudiar" en el input; dispara onChange y actualiza `input` en el estado.
+     - `fireEvent.click(screen.getByTestId("add-btn"));` — simula el click que llama a `handleAdd` y agrega la tarea al estado `tasks`.
+     - `expect(screen.getByText("Estudiar")).toBeInTheDocument();` — verifica que la nueva tarea aparece en el DOM.
+   6. `test("elimina una tarea de la lista", () => { ... });` — caso que valida eliminación:
+     - Primero agrega una tarea igual que en el test anterior.
+     - `const deleteBtn = screen.getByText("Eliminar");` — localiza el botón de eliminar asociado (en este test se asume que es único o que el query encuentra la primera ocurrencia).
+     - `fireEvent.click(deleteBtn);` — simula click y llama a `handleDelete` con el id correspondiente.
+     - `expect(screen.queryByText("Tarea 1")).not.toBeInTheDocument();` — asegura que la tarea fue removida del DOM.
+   7. `test("muestra mensaje cuando no hay tareas y lista cuando hay varias", () => { ... });` — caso que valida vista vacía y múltiples tareas:
+     - `expect(screen.getByTestId("empty-msg")).toBeInTheDocument();` — al inicio la lista está vacía y muestra el mensaje.
+     - Después se agregan dos tareas (A y B) usando `fireEvent.change` + `fireEvent.click`.
+     - `expect(screen.getByText("A")).toBeInTheDocument();` y `expect(screen.getByText("B")).toBeInTheDocument();` — comprueban que ambas aparecen.
+
+  - Comentario sobre sutilezas y buenas prácticas:
+   - El test `elimina una tarea` busca el botón por su texto "Eliminar". Si la UI tuviera varios botones con el mismo texto, conviene dar `data-testid` a cada botón para localizar exactamente el que corresponde a la tarea específica.
+   - Se recomienda evitar `Date.now()` como id en pruebas deterministas; en este proyecto se usa para simplicidad, pero en tests más complejos se puede mockear `Date.now()` o usar ids predecibles.
+
+
 ### Tests añadidos para Layout y Sidebar
 - `src/components/Sidebar.test.tsx`: renderiza el `Sidebar` dentro de `MemoryRouter` y comprueba la presencia de enlaces/textos conocidos como "Tabla de Multiplicar" y "Conversor de Unidades".
 - `src/components/Layout.test.tsx`: renderiza `Layout` dentro de rutas simuladas y comprueba que contiene el `Navbar` (busca el texto de marca) y renderiza el `Outlet` con contenido "Home Content".

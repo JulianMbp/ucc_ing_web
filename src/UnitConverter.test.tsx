@@ -1,27 +1,27 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import UnitConverter from "./components/UnitConverter";
+import { fireEvent, render, screen } from "@testing-library/react"; // importa utilidades de testing
+import UnitConverter from "./components/UnitConverter"; // importa componente
 
-describe("UnitConverter", () => {
-  test("renderiza el formulario", () => {
-    render(<UnitConverter />);
-    expect(screen.getByText(/Conversor de Unidades/i)).toBeInTheDocument();
-    expect(screen.getByTestId("input-celsius")).toBeInTheDocument();
-    expect(screen.getByTestId("convert-btn")).toBeInTheDocument();
-    expect(screen.getByTestId("input-fahrenheit")).toBeInTheDocument();
+describe("UnitConverter", () => { // agrupa pruebas del conversor
+  test("renderiza el formulario", () => { // prueba render básico
+    render(<UnitConverter />); // renderiza componente
+    expect(screen.getByText(/Conversor de Unidades/i)).toBeInTheDocument(); // verifica título
+    expect(screen.getByTestId("input-celsius")).toBeInTheDocument(); // verifica input Celsius
+    expect(screen.getByTestId("convert-btn")).toBeInTheDocument(); // verifica botón Convertir
+    expect(screen.getByTestId("input-fahrenheit")).toBeInTheDocument(); // verifica output Fahrenheit
   });
 
-  test("convierte Celsius a Fahrenheit correctamente", () => {
-    render(<UnitConverter />);
-    fireEvent.change(screen.getByTestId("input-celsius"), { target: { value: "0" } });
-    fireEvent.click(screen.getByTestId("convert-btn"));
-    expect(screen.getByTestId("input-fahrenheit")).toHaveValue("32.00");
+  test("convierte Celsius a Fahrenheit correctamente", () => { // prueba lógica de conversión
+    render(<UnitConverter />); // renderiza componente
+    fireEvent.change(screen.getByTestId("input-celsius"), { target: { value: "0" } }); // ingresa 0°C
+    fireEvent.click(screen.getByTestId("convert-btn")); // pulsa convertir
+    expect(screen.getByTestId("input-fahrenheit")).toHaveValue("32.00"); // espera 32°F
 
-    fireEvent.change(screen.getByTestId("input-celsius"), { target: { value: "100" } });
-    fireEvent.click(screen.getByTestId("convert-btn"));
-    expect(screen.getByTestId("input-fahrenheit")).toHaveValue("212.00");
+    fireEvent.change(screen.getByTestId("input-celsius"), { target: { value: "100" } }); // ingresa 100°C
+    fireEvent.click(screen.getByTestId("convert-btn")); // convierte
+    expect(screen.getByTestId("input-fahrenheit")).toHaveValue("212.00"); // espera 212°F
 
-    fireEvent.change(screen.getByTestId("input-celsius"), { target: { value: "-40" } });
-    fireEvent.click(screen.getByTestId("convert-btn"));
-    expect(screen.getByTestId("input-fahrenheit")).toHaveValue("-40.00");
+    fireEvent.change(screen.getByTestId("input-celsius"), { target: { value: "-40" } }); // ingresa -40°C
+    fireEvent.click(screen.getByTestId("convert-btn")); // convierte
+    expect(screen.getByTestId("input-fahrenheit")).toHaveValue("-40.00"); // espera -40°F
   });
 });
